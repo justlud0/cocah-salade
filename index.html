@@ -13,7 +13,7 @@
       height: 100%;
       margin: 0;
       font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(135deg, #ec4899 0%, #7f9cf5 100%);
+      background: linear-gradient(135deg, #ec4899cc 0%, #7f9cf5cc 100%), url('ChatGPT Image 7 juil. 2025, 16_23_26.png') center center / cover no-repeat fixed;
       min-height: 100vh;
       background-attachment: fixed;
     }
@@ -21,7 +21,7 @@
       font-family: 'Playfair Display', serif;
     }
     .card {
-      background: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.75);
       backdrop-filter: blur(10px);
       border-radius: 1.5rem;
       box-shadow: 0 4px 32px 0 rgba(0,0,0,0.08);
@@ -86,7 +86,6 @@
       <div id="generator-plat-result" class="mt-6"></div>
     </div>
   </div>
-
   <!-- Sélecteur type compositeur -->
   <div id="composer-type-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
     <button onclick="showView('menu-view')" class="mb-2 text-pink-500 font-semibold flex items-center gap-1">⬅️ Menu</button>
@@ -110,6 +109,7 @@
       <div id="composer-result" class="mt-6"></div>
     </div>
   </div>
+
   <!-- Planification Semaine -->
   <div id="batch-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
     <button onclick="showView('menu-view')" class="mb-2 text-blue-500 font-semibold flex items-center gap-1">⬅️ Menu</button>
@@ -190,7 +190,7 @@
       { name: "Noix", emoji: "🥜" }
     ];
 
-    // Plats réels issus de tes recettes (simplifié pour ce code, à enrichir selon besoin)
+    // Plats réels issus de tes recettes
     const platsDB = [
       {
         name: "Wrap maison",
@@ -289,7 +289,7 @@
       }
     ];
 
-    // Astuces cuisine salades (random selon résultat)
+    // Astuces cuisine salades
     const astucesSalades = [
       "Ajoute quelques herbes fraîches pour booster la saveur.",
       "Mélange plusieurs huiles pour une vinaigrette unique.",
@@ -313,15 +313,12 @@
       if (id === "batch-view") document.getElementById('batch-result').innerHTML = '';
     }
 
-    // Générer une salade (random vraie base)
+    // Générer une salade
     function generateSalad() {
       let ingrs = [];
-      // Une base salade
       ingrs.push(getRandomElement(ingredientsSalad.filter(i => ["Laitue", "Pousses d’épinards", "Feuilles de riz"].includes(i.name))));
-      // 3 à 5 ingrédients random en plus
       let pool = ingredientsSalad.filter(i => !ingrs.some(b => b.name === i.name));
       for (let i = 0; i < 4; i++) ingrs.push(getRandomElement(pool.splice(Math.floor(Math.random()*pool.length),1)));
-      // Construction recette
       let nom = "Salade " + ingrs[0].name + " & " + ingrs[1].name;
       let etapes = [
         `Déposer la base (${ingrs[0].emoji} ${ingrs[0].name}) dans une grande assiette.`,
@@ -332,7 +329,7 @@
       document.getElementById('generator-salad-result').innerHTML = recipeCard(nom, ingrs, etapes, astuce, 'salad');
     }
 
-    // Générer un plat (random réel)
+    // Générer un plat
     function generatePlat() {
       let plat = getRandomElement(platsDB);
       let ingrs = plat.ingredients.map(n => {
@@ -342,7 +339,7 @@
       document.getElementById('generator-plat-result').innerHTML = recipeCard(plat.emoji + " " + plat.name, ingrs, plat.steps, plat.astuce, 'plat');
     }
 
-    // Compositeur : type (salade ou plat)
+    // Compositeur
     function selectComposerType(type) {
       document.getElementById('composer-title').textContent = type === "salad" ? "Composer une Salade" : "Composer un Plat";
       let ingrs = (type === "salad" ? ingredientsSalad : ingredientsPlat);
@@ -357,7 +354,7 @@
       document.getElementById('composer-form').setAttribute('data-type', type);
       showView('composer-view');
     }
-    // Compositeur : construction de recette
+
     function composeSaladPlat() {
       let form = document.getElementById('composer-form');
       let type = form.getAttribute('data-type');
@@ -370,7 +367,7 @@
       let astuce = type === "salad" ? getRandomElement(astucesSalades) : "Teste différentes associations pour plus de variété.";
       document.getElementById('composer-result').innerHTML = recipeCard(nom, ingrs, etapes, astuce, type);
     }
-    // Affichage d'une carte recette, partage intégré
+    // Affichage recette + partage
     function recipeCard(nom, ingrs, etapes, astuce, type) {
       return `
       <div class="card">
@@ -389,7 +386,7 @@
       `;
     }
 
-    // Partage recette (Web Share API ou fallback copie)
+    // Partage recette
     function shareRecipe(btn) {
       const card = btn.closest('.card');
       let titre = card.querySelector('h3').innerText;
@@ -407,9 +404,8 @@
       setTimeout(() => btn.innerText = "Partager", 2000);
     }
 
-    // Planification semaine (batch cooking)
+    // Batch (menu semaine)
     function generateBatch() {
-      // 5 menus variés (aléa : salade/plat/salade/plat/salade)
       let result = [];
       for (let i = 0; i < 5; i++) {
         if (i % 2 === 0) { // Salade
@@ -454,4 +450,3 @@
   </script>
 </body>
 </html>
-
