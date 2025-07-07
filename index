@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Coach Salade 2.0</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #ec4899 0%, #7f9cf5 100%);
+      min-height: 100vh;
+      background-attachment: fixed;
+    }
+    h1, h2, .font-display {
+      font-family: 'Playfair Display', serif;
+    }
+    .card {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 32px 0 rgba(0,0,0,0.08);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .pie {
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: conic-gradient(var(--main) calc(var(--pct)*1%), #eee 0 100%);
+    }
+    .pie-text {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: #ec4899;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen">
+  <!-- Vue principale: Menu -->
+  <div id="menu-view" class="w-full max-w-md mx-auto flex flex-col items-center justify-center min-h-screen">
+    <div class="card w-full text-center">
+      <h1 class="font-display text-3xl mb-4">Coach Salade 🥗</h1>
+      <button onclick="showView('generator-view')" class="w-full mb-3 px-4 py-3 rounded-2xl bg-pink-500 text-white font-bold text-lg shadow-md transition hover:bg-pink-600">Générateur</button>
+      <button onclick="showView('composer-view')" class="w-full px-4 py-3 rounded-2xl bg-white border-2 border-pink-500 text-pink-500 font-bold text-lg shadow-md transition hover:bg-pink-50">Compositeur</button>
+    </div>
+    <footer class="text-xs text-gray-600 opacity-80 mt-12">Coach Salade 2.0 • © 2025</footer>
+  </div>
+
+  <!-- Générateur de Salade -->
+  <div id="generator-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
+    <button onclick="showView('menu-view')" class="mb-2 text-pink-500 font-semibold flex items-center gap-1">⬅️ Menu</button>
+    <div class="card w-full">
+      <h2 class="font-display text-2xl mb-3">Générateur de Salade 🎲</h2>
+      <label for="user-weight" class="block text-sm mb-2">Ton poids (kg) :</label>
+      <div class="flex items-center gap-2 mb-4">
+        <input id="user-weight" type="number" min="30" max="180" class="flex-1 rounded-lg border-gray-300 px-3 py-2 focus:outline-pink-500" placeholder="ex: 65">
+        <button onclick="saveWeight()" class="bg-pink-500 text-white rounded-lg px-3 py-2 font-bold">OK</button>
+        <button onclick="resetWeight()" class="text-gray-500 text-xs">Réinitialiser</button>
+      </div>
+      <button id="generate-btn" onclick="generateSalad()" class="w-full px-4 py-3 rounded-2xl bg-pink-500 text-white font-bold text-lg shadow-md transition hover:bg-pink-600">Nouvelle Salade</button>
+      <div id="generator-result" class="mt-6"></div>
+    </div>
+  </div>
+
+  <!-- Compositeur de Salade -->
+  <div id="composer-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
+    <button onclick="showView('menu-view')" class="mb-2 text-pink-500 font-semibold flex items-center gap-1">⬅️ Menu</button>
+    <div class="card w-full">
+      <h2 class="font-display text-2xl mb-3">Composer ta salade 🍴</h2>
+      <form id="composer-form" onsubmit="event.preventDefault(); composeSalad();">
+        <div id="composer-ingredients"></div>
+        <button type="submit" class="w-full mt-4 px-4 py-3 rounded-2xl bg-pink-500 text-white font-bold text-lg shadow-md transition hover:bg-pink-600">Composer ma Salade</button>
+      </form>
+      <div id="composer-result" class="mt-6"></div>
+    </div>
+  </div>
+
+  <script>
+    // Palette & Constantes
+    const MAIN_COLOR = '#ec4899';
+    document.documentElement.style.setProperty('--main', MAIN_COLOR);
+
+    // ---- Gestion des vues SPA ----
+    function showView(id) {
+      document.querySelectorAll('body > div').forEach(div => div.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      // Reset résultat compositeur si retour
+      if (id === 'composer-view') document.getElementById('composer-result').innerHTML = '';
+      if (id === 'generator-view') document.getElementById('generator-result').innerHTML = '';
+    }
+    // ---- Données Ingrédients ----
+    const ingredientsDB = {
+      "bases": [
+        { name: "jeunes pousses d'épinards", calories: 20, weight: "80g", emoji: "🥬" },
+        { name: "laitue", calories: 15, weight: "80g", emoji: "🥗" },
+        { name: "roquette", calories: 20, weight: "60g", emoji: "🌱" },
+        { name: "vermicelles de riz", calories: 110, weight: "40g", emoji: "🍜", preparation: "Cuire les vermicelles, égoutter, rincer." },
+        { name: "tortilla blé complet", calories: 120, weight: "1 pièce", emoji: "🌯" }
+      ],
+      "proteines": [
+        { name: "blanc de poulet", calories: 90, weight: "80g", emoji: "🍗", preparation: "Faire revenir le blanc de volaille émincé et assaisonné." },
+        { name: "crevettes", calories: 60, weight: "70g", emoji: "🦐" },
+        { name: "steak de bœuf", calories: 180, weight: "100g", emoji: "🥩" },
+        { name: "thon en boîte", calories: 85, weight: "60g", emoji: "🐟" },
+        { name: "œuf mollet", calories: 65, weight: "1 pièce", emoji: "🥚", preparation: "Cuire l'œuf mollet : 6 minutes à l'eau frémissante." },
+        { name: "dinde", calories: 80, weight: "70g", emoji: "🍖" }
+      ],
+      "legumes": [
+        { name: "carottes râpées", calories: 25, weight: "60g", emoji: "🥕" },
+        { name: "concombre", calories: 15, weight: "50g", emoji: "🥒" },
+        { name: "poivron rouge", calories: 18, weight: "40g", emoji: "🫑" },
+        { name: "chou-fleur", calories: 20, weight: "60g", emoji: "🥦" },
+        { name: "germes de soja", calories: 10, weight: "20g", emoji: "🌱" }
+      ],
+      "fromages": [
+        { name: "feta", calories: 60, weight: "30g", emoji: "🧀" },
+        { name: "burrata", calories: 85, weight: "50g", emoji: "🥛" }
+      ],
+      "graines_oleagineux": [
+        { name: "pignons de pin", calories: 50, weight: "10g", emoji: "🌰" },
+        { name: "noix de pécan", calories: 45, weight: "8g", emoji: "🥜" },
+        { name: "cacahuètes", calories: 60, weight: "12g", emoji: "🥜" },
+        { name: "graines de sésame", calories: 30, weight: "8g", emoji: "🌾" }
+      ],
+      "fruits": [
+        { name: "melon", calories: 30, weight: "80g", emoji: "🍈" },
+        { name: "pastèque", calories: 20, weight: "80g", emoji: "🍉" },
+        { name: "nectarine", calories: 40, weight: "1/2", emoji: "🍑" },
+        { name: "myrtilles", calories: 25, weight: "30g", emoji: "🫐" }
+      ],
+      "herbes": [
+        { name: "menthe", calories: 0, weight: "qq feuilles", emoji: "🌿" },
+        { name: "basilic", calories: 0, weight: "qq feuilles", emoji: "🌿" },
+        { name: "coriandre", calories: 0, weight: "qq feuilles", emoji: "🌿" }
+      ],
+      "extras": [
+        { name: "yaourt maigre", calories: 20, weight: "40g", emoji: "🥣" },
+        { name: "huile d'olive", calories: 40, weight: "1 c.à.s", emoji: "🫒" },
+        { name: "vinaigre balsamique", calories: 5, weight: "1 c.à.c", emoji: "🥄" },
+        { name: "sauce soja", calories: 5, weight: "1 c.à.c", emoji: "🥄" },
+        { name: "jus de citron", calories: 2, weight: "1 c.à.c", emoji: "🍋" }
+      ]
+    };
+
+    // ---- Utils ----
+    function getRandomElement(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function calculateTDEE(weight) {
+      // Mifflin-St Jeor : 10*poids + 6.25*taille - 5*âge + 5
+      // x1.55 activité modérée
+      const taille = 175, age = 30, genre = 1; // 1 = homme, -161 = femme (option à ouvrir)
+      return Math.round(((10 * weight) + (6.25 * taille) - (5 * age) + 5) * 1.55);
+    }
+
+    function saveWeight() {
+      const w = document.getElementById('user-weight').value;
+      if (w > 30 && w < 200) {
+        localStorage.setItem('coachSaladeWeight', w);
+        alert('Poids sauvegardé !');
+      }
+    }
+    function resetWeight() {
+      localStorage.removeItem('coachSaladeWeight');
+      document.getElementById('user-weight').value = '';
+    }
+    // Au chargement, préremplir le champ poids
+    window.onload = () => {
+      const w = localStorage.getItem('coachSaladeWeight');
+      if (w) document.getElementById('user-weight').value = w;
+      renderComposerIngredients();
+    };
+
+    // ---- Générateur de salade ----
+    function generateSalad() {
+      // Vérifier poids
+      const weight = parseInt(document.getElementById('user-weight').value || '0', 10);
+      if (!weight || weight < 30) {
+        alert('Renseigne ton poids (en kg) pour générer une salade adaptée !');
+        return;
+      }
+      // Choix d'un ingrédient dans chaque catégorie principale
+      const base = getRandomElement(ingredientsDB.bases);
+      const proteine = getRandomElement(ingredientsDB.proteines);
+      const legumes = getRandomElement(ingredientsDB.legumes);
+      const fromages = getRandomElement(ingredientsDB.fromages);
+      const graines = getRandomElement(ingredientsDB.graines_oleagineux);
+      const fruit = getRandomElement(ingredientsDB.fruits);
+      // Herbes
+      const herbes = getRandomElement(ingredientsDB.herbes);
+      // Extras (1 ou 2)
+      const extras = [getRandomElement(ingredientsDB.extras)];
+      if (Math.random() > 0.6) extras.push(getRandomElement(ingredientsDB.extras));
+
+      const ingredients = [base, proteine, legumes, fromages, graines, fruit, herbes, ...extras];
+      // Total calories
+      const totalKcal = ingredients.reduce((sum, ing) => sum + (ing.calories||0), 0);
+      // TDEE
+      const tdee = calculateTDEE(weight);
+      const pct = Math.round((totalKcal / tdee) * 100);
+      // Nom de recette
+      const name = randomSaladName(base, proteine, fruit);
+      // Préparation
+      const steps = [
+        `Déposer la base (${base.emoji} ${base.name}) dans une grande assiette ou un bol profond.`,
+        proteine.preparation ? `Cuire/Préparer la protéine : ${proteine.preparation}` : `Ajouter la protéine (${proteine.emoji} ${proteine.name}).`,
+        legumes.preparation ? `Préparer les légumes : ${legumes.preparation}` : `Ajouter les légumes (${legumes.emoji} ${legumes.name}).`,
+        fromages ? `Émietter le fromage (${fromages.emoji} ${fromages.name}) par-dessus.` : '',
+        graines ? `Ajouter les graines ou oléagineux (${graines.emoji} ${graines.name}).` : '',
+        fruit ? `Déposer quelques morceaux de fruit (${fruit.emoji} ${fruit.name}) pour la fraîcheur.` : '',
+        herbes ? `Parsemer d'herbes fraîches (${herbes.emoji} ${herbes.name}).` : '',
+        extras.map(e => e.name.includes('huile') || e.name.includes('vinaigre') || e.name.includes('sauce') || e.name.includes('citron') ? `Assaisonner avec ${e.emoji} ${e.name}.` : `Ajouter ${e.emoji} ${e.name}.`).join(' '),
+        `Mélanger délicatement et servir bien frais. Bon appétit !`
+      ].filter(Boolean);
+      // Affichage
+      document.getElementById('generator-result').innerHTML = saladCard(name, ingredients, totalKcal, pct, tdee, steps, 'generator');
+    }
+    // ---- Générateur de nom de salade ----
+    function randomSaladName(base, proteine, fruit) {
+      const adj = ["Fraîcheur", "Gourmande", "Exotique", "Vitalité", "Éclatante", "Croquante", "Colorée", "Tonique", "Zen"];
+      const c1 = adj[Math.floor(Math.random()*adj.length)];
+      const c2 = base.name.split(' ')[0];
+      const c3 = proteine.name.split(' ')[0];
+      const c4 = fruit ? fruit.name.split(' ')[0] : '';
+      return `La ${c1} ${c2} ${c3}${c4 ? ' & ' + c4 : ''}`;
+    }
+
+    // ---- Affichage carte recette ----
+    function saladCard(name, ingredients, totalKcal, pct, tdee, steps, mode) {
+      return `
+      <div class="card">
+        <h3 class="font-display text-xl mb-2">${name}</h3>
+        <ul class="mb-3">
+          ${ingredients.map(ing => `<li>${ing.emoji} <b>${ing.name}</b> <span class="text-xs text-gray-500">(${ing.weight}, ${ing.calories} kcal)</span></li>`).join('')}
+        </ul>
+        <div class="flex items-center gap-4 mb-3">
+          <div class="pie" style="--pct:${Math.min(pct,100)}">
+            <span class="pie-text">${pct}%</span>
+          </div>
+          <div>
+            <div class="font-bold text-lg">${totalKcal} kcal</div>
+            <div class="text-xs text-gray-600">${pct < 70 ? 'Parfait pour un repas léger.' : (pct < 100 ? 'Repas complet.' : 'Très copieux !')}</div>
+            <div class="text-xs text-gray-400">Besoins quotidiens : ${tdee} kcal</div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <ol class="list-decimal list-inside text-sm text-gray-700">
+            ${steps.map(s => `<li>${s}</li>`).join('')}
+          </ol>
+        </div>
+        <button onclick="copyRecipe(this)" class="mt-2 px-4 py-2 rounded-xl bg-pink-500 text-white font-bold text-base hover:bg-pink-600">Copier la recette</button>
+      </div>
+      `;
+    }
+
+    // ---- Copie recette ----
+    function copyRecipe(btn) {
+      const card = btn.closest('.card');
+      let text = '';
+      card.querySelectorAll('h3, ul, ol').forEach(el => text += el.innerText + '\\n');
+      navigator.clipboard.writeText(text);
+      btn.innerText = "Copié !";
+      setTimeout(() => btn.innerText = "Copier la recette", 2000);
+    }
+
+    // ---- Compositeur : afficher ingrédients ----
+    function renderComposerIngredients() {
+      const catNames = {
+        bases: 'Bases',
+        proteines: 'Protéines',
+        legumes: 'Légumes',
+        fromages: 'Fromages',
+        graines_oleagineux: 'Graines/Oléagineux',
+        fruits: 'Fruits',
+        herbes: 'Herbes',
+        extras: 'Extras'
+      };
+      let html = '';
+      for (const [cat, list] of Object.entries(ingredientsDB)) {
+        html += `<div class="mb-2"><div class="font-bold text-pink-500 mb-1">${catNames[cat]}</div>`;
+        html += '<div class="flex flex-wrap gap-2 mb-2">';
+        list.forEach((ing, idx) => {
+          html += `<label class="inline-flex items-center gap-1 bg-white/70 rounded-lg px-2 py-1 shadow border">
+              <input type="checkbox" name="${cat}" value="${idx}" class="accent-pink-500">
+              <span>${ing.emoji} ${ing.name}</span>
+            </label>`;
+        });
+        html += '</div></div>';
+      }
+      document.getElementById('composer-ingredients').innerHTML = html;
+    }
+
+    // ---- Compositeur : calcul et affichage ----
+    function composeSalad() {
+      const form = document.getElementById('composer-form');
+      const selected = Array.from(form.querySelectorAll('input[type=checkbox]:checked'));
+      if (!selected.length) {
+        alert('Sélectionne au moins un ingrédient !');
+        return;
+      }
+      let ings = [];
+      for (const el of selected) {
+        ings.push(ingredientsDB[el.name][parseInt(el.value)]);
+      }
+      const totalKcal = ings.reduce((sum, ing) => sum + (ing.calories||0), 0);
+      const weight = parseInt(localStorage.getItem('coachSaladeWeight') || '70', 10);
+      const tdee = calculateTDEE(weight);
+      const pct = Math.round((totalKcal / tdee) * 100);
+      const name = randomSaladName(
+        ings.find(i => i.emoji === '🥬' || i.emoji === '🥗' || i.emoji === '🌱') || ings[0],
+        ings.find(i => i.emoji === '🍗' || i.emoji === '🥩' || i.emoji === '🐟' || i.emoji === '🦐' || i.emoji === '🍖' || i.emoji === '🥚') || ings[0],
+        ings.find(i => i.emoji === '🍈' || i.emoji === '🍉' || i.emoji === '🍑' || i.emoji === '🫐')
+      );
+      // Préparation custom basique
+      const steps = ings.map(i => i.preparation ? i.preparation : `Ajouter ${i.emoji} ${i.name}.`);
+      steps.push('Mélanger délicatement, servir bien frais. Bon appétit !');
+      document.getElementById('composer-result').innerHTML = saladCard(name, ings, totalKcal, pct, tdee, steps, 'composer');
+    }
+  </script>
+</body>
+</html>
