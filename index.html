@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Coach Salade 2.0</title>
-  <!-- Tailwind CSS -->
+  <title>Coach Salade 2.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
@@ -56,287 +54,404 @@
   </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen">
-  <!-- Vue principale: Menu -->
+
+  <!-- Menu principal -->
   <div id="menu-view" class="w-full max-w-md mx-auto flex flex-col items-center justify-center min-h-screen">
     <div class="card w-full text-center">
       <h1 class="font-display text-3xl mb-4">Coach Salade 🥗</h1>
-      <button onclick="showView('generator-view')" class="w-full mb-3 px-4 py-3 rounded-2xl bg-pink-500 text-white font-bold text-lg shadow-md transition hover:bg-pink-600">Générateur</button>
-      <button onclick="showView('composer-view')" class="w-full px-4 py-3 rounded-2xl bg-white border-2 border-pink-500 text-pink-500 font-bold text-lg shadow-md transition hover:bg-pink-50">Compositeur</button>
+      <button onclick="showView('generator-salad-view')" class="w-full mb-3 px-4 py-3 rounded-2xl bg-pink-500 text-white font-bold text-lg shadow-md transition hover:bg-pink-600">Générer une Salade</button>
+      <button onclick="showView('generator-plat-view')" class="w-full mb-3 px-4 py-3 rounded-2xl bg-yellow-400 text-gray-800 font-bold text-lg shadow-md transition hover:bg-yellow-500">Générer un Plat</button>
+      <button onclick="showView('composer-type-view')" class="w-full px-4 py-3 rounded-2xl bg-white border-2 border-pink-500 text-pink-500 font-bold text-lg shadow-md transition hover:bg-pink-50">Composer</button>
+      <button onclick="showView('batch-view')" class="w-full mt-3 px-4 py-3 rounded-2xl bg-blue-500 text-white font-bold text-lg shadow-md transition hover:bg-blue-600">Planification Semaine</button>
     </div>
-    <footer class="text-xs text-gray-600 opacity-80 mt-12">Coach Salade 2.0 • © 2025</footer>
+    <footer class="text-xs text-gray-600 opacity-80 mt-12">Coach Salade 2.1 • © 2025</footer>
   </div>
 
   <!-- Générateur de Salade -->
-  <div id="generator-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
+  <div id="generator-salad-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
     <button onclick="showView('menu-view')" class="mb-2 text-pink-500 font-semibold flex items-center gap-1">⬅️ Menu</button>
     <div class="card w-full">
       <h2 class="font-display text-2xl mb-3">Générateur de Salade 🎲</h2>
-      <label for="user-weight" class="block text-sm mb-2">Ton poids (kg) :</label>
-      <div class="flex items-center gap-2 mb-4">
-        <input id="user-weight" type="number" min="30" max="180" class="flex-1 rounded-lg border-gray-300 px-3 py-2 focus:outline-pink-500" placeholder="ex: 65">
-        <button onclick="saveWeight()" class="bg-pink-500 text-white rounded-lg px-3 py-2 font-bold">OK</button>
-        <button onclick="resetWeight()" class="text-gray-500 text-xs">Réinitialiser</button>
-      </div>
-      <button id="generate-btn" onclick="generateSalad()" class="w-full px-4 py-3 rounded-2xl bg-pink-500 text-white font-bold text-lg shadow-md transition hover:bg-pink-600">Nouvelle Salade</button>
-      <div id="generator-result" class="mt-6"></div>
+      <button id="generate-salad-btn" onclick="generateSalad()" class="w-full px-4 py-3 rounded-2xl bg-pink-500 text-white font-bold text-lg shadow-md transition hover:bg-pink-600">Nouvelle Salade</button>
+      <div id="generator-salad-result" class="mt-6"></div>
     </div>
   </div>
 
-  <!-- Compositeur de Salade -->
-  <div id="composer-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
-    <button onclick="showView('menu-view')" class="mb-2 text-pink-500 font-semibold flex items-center gap-1">⬅️ Menu</button>
+  <!-- Générateur de Plat -->
+  <div id="generator-plat-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
+    <button onclick="showView('menu-view')" class="mb-2 text-yellow-500 font-semibold flex items-center gap-1">⬅️ Menu</button>
     <div class="card w-full">
-      <h2 class="font-display text-2xl mb-3">Composer ta salade 🍴</h2>
-      <form id="composer-form" onsubmit="event.preventDefault(); composeSalad();">
+      <h2 class="font-display text-2xl mb-3">Générateur de Plat 🍽️</h2>
+      <button id="generate-plat-btn" onclick="generatePlat()" class="w-full px-4 py-3 rounded-2xl bg-yellow-400 text-gray-800 font-bold text-lg shadow-md transition hover:bg-yellow-500">Nouveau Plat</button>
+      <div id="generator-plat-result" class="mt-6"></div>
+    </div>
+  </div>
+
+  <!-- Sélecteur type compositeur -->
+  <div id="composer-type-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
+    <button onclick="showView('menu-view')" class="mb-2 text-pink-500 font-semibold flex items-center gap-1">⬅️ Menu</button>
+    <div class="card w-full text-center">
+      <h2 class="font-display text-2xl mb-3">Composer une recette</h2>
+      <p class="mb-4">Que veux-tu composer&nbsp;?</p>
+      <button onclick="selectComposerType('salad')" class="w-full mb-3 px-4 py-3 rounded-2xl bg-pink-500 text-white font-bold text-lg shadow-md transition hover:bg-pink-600">Salade</button>
+      <button onclick="selectComposerType('plat')" class="w-full px-4 py-3 rounded-2xl bg-yellow-400 text-gray-800 font-bold text-lg shadow-md transition hover:bg-yellow-500">Plat</button>
+    </div>
+  </div>
+
+  <!-- Compositeur -->
+  <div id="composer-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
+    <button onclick="showView('composer-type-view')" class="mb-2 text-pink-500 font-semibold flex items-center gap-1">⬅️ Retour</button>
+    <div class="card w-full">
+      <h2 id="composer-title" class="font-display text-2xl mb-3"></h2>
+      <form id="composer-form" onsubmit="event.preventDefault(); composeSaladPlat();">
         <div id="composer-ingredients"></div>
-        <button type="submit" class="w-full mt-4 px-4 py-3 rounded-2xl bg-pink-500 text-white font-bold text-lg shadow-md transition hover:bg-pink-600">Composer ma Salade</button>
+        <button type="submit" class="w-full mt-4 px-4 py-3 rounded-2xl bg-pink-500 text-white font-bold text-lg shadow-md transition hover:bg-pink-600">Composer</button>
       </form>
       <div id="composer-result" class="mt-6"></div>
     </div>
   </div>
+  <!-- Planification Semaine -->
+  <div id="batch-view" class="hidden w-full max-w-md mx-auto flex flex-col items-center min-h-screen pt-6">
+    <button onclick="showView('menu-view')" class="mb-2 text-blue-500 font-semibold flex items-center gap-1">⬅️ Menu</button>
+    <div class="card w-full">
+      <h2 class="font-display text-2xl mb-3">Planification semaine 📅</h2>
+      <button onclick="generateBatch()" class="w-full px-4 py-3 rounded-2xl bg-blue-500 text-white font-bold text-lg shadow-md transition hover:bg-blue-600">Générer un menu semaine</button>
+      <div id="batch-result" class="mt-6"></div>
+    </div>
+  </div>
 
   <script>
-    // Palette & Constantes
-    const MAIN_COLOR = '#ec4899';
-    document.documentElement.style.setProperty('--main', MAIN_COLOR);
+    // ---------- BASE DE DONNÉES ----------
 
-    // ---- Gestion des vues SPA ----
-    function showView(id) {
-      document.querySelectorAll('body > div').forEach(div => div.classList.add('hidden'));
-      document.getElementById(id).classList.remove('hidden');
-      // Reset résultat compositeur si retour
-      if (id === 'composer-view') document.getElementById('composer-result').innerHTML = '';
-      if (id === 'generator-view') document.getElementById('generator-result').innerHTML = '';
-    }
-    // ---- Données Ingrédients ----
-    const ingredientsDB = {
-      "bases": [
-        { name: "jeunes pousses d'épinards", calories: 20, weight: "80g", emoji: "🥬" },
-        { name: "laitue", calories: 15, weight: "80g", emoji: "🥗" },
-        { name: "roquette", calories: 20, weight: "60g", emoji: "🌱" },
-        { name: "vermicelles de riz", calories: 110, weight: "40g", emoji: "🍜", preparation: "Cuire les vermicelles, égoutter, rincer." },
-        { name: "tortilla blé complet", calories: 120, weight: "1 pièce", emoji: "🌯" }
-      ],
-      "proteines": [
-        { name: "blanc de poulet", calories: 90, weight: "80g", emoji: "🍗", preparation: "Faire revenir le blanc de volaille émincé et assaisonné." },
-        { name: "crevettes", calories: 60, weight: "70g", emoji: "🦐" },
-        { name: "steak de bœuf", calories: 180, weight: "100g", emoji: "🥩" },
-        { name: "thon en boîte", calories: 85, weight: "60g", emoji: "🐟" },
-        { name: "œuf mollet", calories: 65, weight: "1 pièce", emoji: "🥚", preparation: "Cuire l'œuf mollet : 6 minutes à l'eau frémissante." },
-        { name: "dinde", calories: 80, weight: "70g", emoji: "🍖" }
-      ],
-      "legumes": [
-        { name: "carottes râpées", calories: 25, weight: "60g", emoji: "🥕" },
-        { name: "concombre", calories: 15, weight: "50g", emoji: "🥒" },
-        { name: "poivron rouge", calories: 18, weight: "40g", emoji: "🫑" },
-        { name: "chou-fleur", calories: 20, weight: "60g", emoji: "🥦" },
-        { name: "germes de soja", calories: 10, weight: "20g", emoji: "🌱" }
-      ],
-      "fromages": [
-        { name: "feta", calories: 60, weight: "30g", emoji: "🧀" },
-        { name: "burrata", calories: 85, weight: "50g", emoji: "🥛" }
-      ],
-      "graines_oleagineux": [
-        { name: "pignons de pin", calories: 50, weight: "10g", emoji: "🌰" },
-        { name: "noix de pécan", calories: 45, weight: "8g", emoji: "🥜" },
-        { name: "cacahuètes", calories: 60, weight: "12g", emoji: "🥜" },
-        { name: "graines de sésame", calories: 30, weight: "8g", emoji: "🌾" }
-      ],
-      "fruits": [
-        { name: "melon", calories: 30, weight: "80g", emoji: "🍈" },
-        { name: "pastèque", calories: 20, weight: "80g", emoji: "🍉" },
-        { name: "nectarine", calories: 40, weight: "1/2", emoji: "🍑" },
-        { name: "myrtilles", calories: 25, weight: "30g", emoji: "🫐" }
-      ],
-      "herbes": [
-        { name: "menthe", calories: 0, weight: "qq feuilles", emoji: "🌿" },
-        { name: "basilic", calories: 0, weight: "qq feuilles", emoji: "🌿" },
-        { name: "coriandre", calories: 0, weight: "qq feuilles", emoji: "🌿" }
-      ],
-      "extras": [
-        { name: "yaourt maigre", calories: 20, weight: "40g", emoji: "🥣" },
-        { name: "huile d'olive", calories: 40, weight: "1 c.à.s", emoji: "🫒" },
-        { name: "vinaigre balsamique", calories: 5, weight: "1 c.à.c", emoji: "🥄" },
-        { name: "sauce soja", calories: 5, weight: "1 c.à.c", emoji: "🥄" },
-        { name: "jus de citron", calories: 2, weight: "1 c.à.c", emoji: "🍋" }
-      ]
-    };
+    // Ingrédients SALADE (issu de tes recettes)
+    const ingredientsSalad = [
+      { name: "Feuilles de riz", emoji: "🫓" },
+      { name: "Vermicelles de riz", emoji: "🍜" },
+      { name: "Crevettes cuites", emoji: "🦐" },
+      { name: "Blanc de volaille", emoji: "🍗" },
+      { name: "Carottes râpées", emoji: "🥕" },
+      { name: "Laitue", emoji: "🥬" },
+      { name: "Concombre", emoji: "🥒" },
+      { name: "Germes de soja", emoji: "🌱" },
+      { name: "Menthe", emoji: "🌿" },
+      { name: "Persil plat", emoji: "🌿" },
+      { name: "Coriandre", emoji: "🌿" },
+      { name: "Jeunes oignons", emoji: "🧅" },
+      { name: "Pousses d’épinards", emoji: "🥗" },
+      { name: "Huile d’olive", emoji: "🫒" },
+      { name: "Vinaigre", emoji: "🥄" },
+      { name: "Citron", emoji: "🍋" },
+      { name: "Cacahuètes", emoji: "🥜" },
+      { name: "Feta", emoji: "🧀" },
+      { name: "Burrata", emoji: "🥛" },
+      { name: "Myrtilles", emoji: "🫐" },
+      { name: "Melon", emoji: "🍈" },
+      { name: "Pastèque", emoji: "🍉" },
+      { name: "Nectarine", emoji: "🍑" },
+      { name: "Olives noires", emoji: "🫒" },
+      { name: "Basilic", emoji: "🌱" },
+      { name: "Tomates cerises", emoji: "🍅" },
+      { name: "Chou-fleur", emoji: "🥦" },
+      { name: "Noix de pécan", emoji: "🥜" },
+      { name: "Pignons de pin", emoji: "🌰" },
+      { name: "Graines de sésame", emoji: "🌾" }
+    ];
 
-    // ---- Utils ----
+    // Ingrédients PLAT (issu de tes recettes)
+    const ingredientsPlat = [
+      { name: "Tortilla blé complet", emoji: "🌯" },
+      { name: "Épices pour poulet", emoji: "🧂" },
+      { name: "Ail", emoji: "🧄" },
+      { name: "Oignon rouge", emoji: "🧅" },
+      { name: "Yaourt nature maigre", emoji: "🥣" },
+      { name: "Steak de bœuf", emoji: "🥩" },
+      { name: "Sauce soja", emoji: "🥄" },
+      { name: "Poivron rouge", emoji: "🫑" },
+      { name: "Échalote", emoji: "🧅" },
+      { name: "Thon à l’huile", emoji: "🐟" },
+      { name: "Oignon", emoji: "🧅" },
+      { name: "Dinde", emoji: "🍖" },
+      { name: "Yaourt nature maigre", emoji: "🥣" },
+      { name: "Épices tandoori", emoji: "🌶️" },
+      { name: "Piment d’Espelette", emoji: "🌶️" },
+      { name: "Faisselle", emoji: "🥛" },
+      { name: "Pâte brisée", emoji: "🥧" },
+      { name: "Poireau", emoji: "🧅" },
+      { name: "Jambon", emoji: "🍖" },
+      { name: "Œufs", emoji: "🥚" },
+      { name: "Muscade", emoji: "🌰" },
+      { name: "Pommes de terre", emoji: "🥔" },
+      { name: "Riz", emoji: "🍚" },
+      { name: "Semoule", emoji: "🍚" },
+      { name: "Pâtes complètes", emoji: "🍝" },
+      { name: "Lait écrémé", emoji: "🥛" },
+      { name: "Saumon fumé", emoji: "🐟" },
+      { name: "St Môret light", emoji: "🧀" },
+      { name: "Noix", emoji: "🥜" }
+    ];
+
+    // Plats réels issus de tes recettes (simplifié pour ce code, à enrichir selon besoin)
+    const platsDB = [
+      {
+        name: "Wrap maison",
+        emoji: "🌯",
+        ingredients: [
+          "Tortilla blé complet",
+          "Blanc de volaille",
+          "Épices pour poulet",
+          "Yaourt nature maigre",
+          "Laitue",
+          "Carottes râpées",
+          "Oignon rouge"
+        ],
+        steps: [
+          "Émincer et cuire le blanc de volaille avec les épices.",
+          "Mélanger le yaourt avec des herbes pour la sauce.",
+          "Étaler la sauce sur la tortilla, ajouter légumes et viande.",
+          "Rouler et servir frais ou tiède."
+        ],
+        astuce: "Pour un wrap plus frais, ajoute quelques feuilles de menthe ou de coriandre."
+      },
+      {
+        name: "Rouleaux de printemps",
+        emoji: "🫓",
+        ingredients: [
+          "Feuilles de riz",
+          "Crevettes cuites",
+          "Vermicelles de riz",
+          "Carottes râpées",
+          "Concombre",
+          "Germes de soja",
+          "Menthe",
+          "Persil plat"
+        ],
+        steps: [
+          "Cuire et rincer les vermicelles de riz.",
+          "Réhydrater les feuilles de riz.",
+          "Déposer légumes, vermicelles, herbes, crevettes sur la feuille.",
+          "Rouler fermement. Servir avec sauce soja/cacahuètes."
+        ],
+        astuce: "Roulez bien serré pour éviter que les rouleaux ne se défassent à la découpe."
+      },
+      {
+        name: "Quiche jambon-poireau",
+        emoji: "🥧",
+        ingredients: [
+          "Pâte brisée",
+          "Poireau",
+          "Jambon",
+          "Œufs",
+          "Lait écrémé",
+          "Muscade"
+        ],
+        steps: [
+          "Préchauffer le four à 180°C.",
+          "Faire revenir les poireaux émincés.",
+          "Fouetter œufs, lait, muscade, ajouter poireaux et jambon.",
+          "Verser sur la pâte, cuire 35 min."
+        ],
+        astuce: "Laisse tiédir avant de couper pour une quiche bien ferme."
+      },
+      {
+        name: "Pâtes complètes au chou-fleur & thon",
+        emoji: "🍝",
+        ingredients: [
+          "Pâtes complètes",
+          "Chou-fleur",
+          "Thon à l’huile",
+          "Échalote",
+          "Huile d’olive"
+        ],
+        steps: [
+          "Cuire les pâtes et le chou-fleur séparément.",
+          "Faire revenir l’échalote, ajouter le chou-fleur.",
+          "Mélanger pâtes, chou-fleur, thon égoutté.",
+          "Servir chaud, arroser d’un filet d’huile d’olive."
+        ],
+        astuce: "Ajoute un peu de zeste de citron pour relever le goût du thon."
+      },
+      {
+        name: "Brochettes de dinde sésame & salsa pastèque",
+        emoji: "🍢",
+        ingredients: [
+          "Dinde",
+          "Graines de sésame",
+          "Pastèque",
+          "Menthe",
+          "Yaourt nature maigre"
+        ],
+        steps: [
+          "Enrober la dinde de graines de sésame et cuire à la poêle.",
+          "Couper la pastèque en dés, mélanger avec yaourt et menthe.",
+          "Servir les brochettes chaudes, salsa à côté."
+        ],
+        astuce: "Utilise des pics en bois trempés pour éviter qu’ils ne brûlent à la cuisson."
+      }
+    ];
+
+    // Astuces cuisine salades (random selon résultat)
+    const astucesSalades = [
+      "Ajoute quelques herbes fraîches pour booster la saveur.",
+      "Mélange plusieurs huiles pour une vinaigrette unique.",
+      "Pense aux fruits frais pour un twist sucré-salé.",
+      "Torréfie les graines pour plus de croquant.",
+      "Ajoute un peu de zeste de citron dans ta sauce."
+    ];
+
+    // Utilitaires random
     function getRandomElement(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    function calculateTDEE(weight) {
-      // Mifflin-St Jeor : 10*poids + 6.25*taille - 5*âge + 5
-      // x1.55 activité modérée
-      const taille = 175, age = 30, genre = 1; // 1 = homme, -161 = femme (option à ouvrir)
-      return Math.round(((10 * weight) + (6.25 * taille) - (5 * age) + 5) * 1.55);
+    // Navigation SPA
+    function showView(id) {
+      document.querySelectorAll('body > div').forEach(div => div.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      if (id === "composer-view") document.getElementById('composer-result').innerHTML = '';
+      if (id === "generator-salad-view") document.getElementById('generator-salad-result').innerHTML = '';
+      if (id === "generator-plat-view") document.getElementById('generator-plat-result').innerHTML = '';
+      if (id === "batch-view") document.getElementById('batch-result').innerHTML = '';
     }
 
-    function saveWeight() {
-      const w = document.getElementById('user-weight').value;
-      if (w > 30 && w < 200) {
-        localStorage.setItem('coachSaladeWeight', w);
-        alert('Poids sauvegardé !');
-      }
-    }
-    function resetWeight() {
-      localStorage.removeItem('coachSaladeWeight');
-      document.getElementById('user-weight').value = '';
-    }
-    // Au chargement, préremplir le champ poids
-    window.onload = () => {
-      const w = localStorage.getItem('coachSaladeWeight');
-      if (w) document.getElementById('user-weight').value = w;
-      renderComposerIngredients();
-    };
-
-    // ---- Générateur de salade ----
+    // Générer une salade (random vraie base)
     function generateSalad() {
-      // Vérifier poids
-      const weight = parseInt(document.getElementById('user-weight').value || '0', 10);
-      if (!weight || weight < 30) {
-        alert('Renseigne ton poids (en kg) pour générer une salade adaptée !');
-        return;
-      }
-      // Choix d'un ingrédient dans chaque catégorie principale
-      const base = getRandomElement(ingredientsDB.bases);
-      const proteine = getRandomElement(ingredientsDB.proteines);
-      const legumes = getRandomElement(ingredientsDB.legumes);
-      const fromages = getRandomElement(ingredientsDB.fromages);
-      const graines = getRandomElement(ingredientsDB.graines_oleagineux);
-      const fruit = getRandomElement(ingredientsDB.fruits);
-      // Herbes
-      const herbes = getRandomElement(ingredientsDB.herbes);
-      // Extras (1 ou 2)
-      const extras = [getRandomElement(ingredientsDB.extras)];
-      if (Math.random() > 0.6) extras.push(getRandomElement(ingredientsDB.extras));
-
-      const ingredients = [base, proteine, legumes, fromages, graines, fruit, herbes, ...extras];
-      // Total calories
-      const totalKcal = ingredients.reduce((sum, ing) => sum + (ing.calories||0), 0);
-      // TDEE
-      const tdee = calculateTDEE(weight);
-      const pct = Math.round((totalKcal / tdee) * 100);
-      // Nom de recette
-      const name = randomSaladName(base, proteine, fruit);
-      // Préparation
-      const steps = [
-        `Déposer la base (${base.emoji} ${base.name}) dans une grande assiette ou un bol profond.`,
-        proteine.preparation ? `Cuire/Préparer la protéine : ${proteine.preparation}` : `Ajouter la protéine (${proteine.emoji} ${proteine.name}).`,
-        legumes.preparation ? `Préparer les légumes : ${legumes.preparation}` : `Ajouter les légumes (${legumes.emoji} ${legumes.name}).`,
-        fromages ? `Émietter le fromage (${fromages.emoji} ${fromages.name}) par-dessus.` : '',
-        graines ? `Ajouter les graines ou oléagineux (${graines.emoji} ${graines.name}).` : '',
-        fruit ? `Déposer quelques morceaux de fruit (${fruit.emoji} ${fruit.name}) pour la fraîcheur.` : '',
-        herbes ? `Parsemer d'herbes fraîches (${herbes.emoji} ${herbes.name}).` : '',
-        extras.map(e => e.name.includes('huile') || e.name.includes('vinaigre') || e.name.includes('sauce') || e.name.includes('citron') ? `Assaisonner avec ${e.emoji} ${e.name}.` : `Ajouter ${e.emoji} ${e.name}.`).join(' '),
-        `Mélanger délicatement et servir bien frais. Bon appétit !`
-      ].filter(Boolean);
-      // Affichage
-      document.getElementById('generator-result').innerHTML = saladCard(name, ingredients, totalKcal, pct, tdee, steps, 'generator');
-    }
-    // ---- Générateur de nom de salade ----
-    function randomSaladName(base, proteine, fruit) {
-      const adj = ["Fraîcheur", "Gourmande", "Exotique", "Vitalité", "Éclatante", "Croquante", "Colorée", "Tonique", "Zen"];
-      const c1 = adj[Math.floor(Math.random()*adj.length)];
-      const c2 = base.name.split(' ')[0];
-      const c3 = proteine.name.split(' ')[0];
-      const c4 = fruit ? fruit.name.split(' ')[0] : '';
-      return `La ${c1} ${c2} ${c3}${c4 ? ' & ' + c4 : ''}`;
+      let ingrs = [];
+      // Une base salade
+      ingrs.push(getRandomElement(ingredientsSalad.filter(i => ["Laitue", "Pousses d’épinards", "Feuilles de riz"].includes(i.name))));
+      // 3 à 5 ingrédients random en plus
+      let pool = ingredientsSalad.filter(i => !ingrs.some(b => b.name === i.name));
+      for (let i = 0; i < 4; i++) ingrs.push(getRandomElement(pool.splice(Math.floor(Math.random()*pool.length),1)));
+      // Construction recette
+      let nom = "Salade " + ingrs[0].name + " & " + ingrs[1].name;
+      let etapes = [
+        `Déposer la base (${ingrs[0].emoji} ${ingrs[0].name}) dans une grande assiette.`,
+        ...ingrs.slice(1).map(ing => `Ajouter ${ing.emoji} ${ing.name}.`),
+        "Assaisonner selon ton goût. Mélanger et servir frais."
+      ];
+      let astuce = getRandomElement(astucesSalades);
+      document.getElementById('generator-salad-result').innerHTML = recipeCard(nom, ingrs, etapes, astuce, 'salad');
     }
 
-    // ---- Affichage carte recette ----
-    function saladCard(name, ingredients, totalKcal, pct, tdee, steps, mode) {
+    // Générer un plat (random réel)
+    function generatePlat() {
+      let plat = getRandomElement(platsDB);
+      let ingrs = plat.ingredients.map(n => {
+        let i = ingredientsPlat.find(i => i.name === n) || ingredientsSalad.find(i => i.name === n) || { name: n, emoji: "🍽️" };
+        return i;
+      });
+      document.getElementById('generator-plat-result').innerHTML = recipeCard(plat.emoji + " " + plat.name, ingrs, plat.steps, plat.astuce, 'plat');
+    }
+
+    // Compositeur : type (salade ou plat)
+    function selectComposerType(type) {
+      document.getElementById('composer-title').textContent = type === "salad" ? "Composer une Salade" : "Composer un Plat";
+      let ingrs = (type === "salad" ? ingredientsSalad : ingredientsPlat);
+      let html = '';
+      ingrs.forEach((i, idx) => {
+        html += `<label class="inline-flex items-center gap-1 bg-white/70 rounded-lg px-2 py-1 shadow border mb-2 mr-2">
+            <input type="checkbox" name="comp-ingr" value="${i.name}" class="accent-pink-500">
+            <span>${i.emoji} ${i.name}</span>
+        </label>`;
+      });
+      document.getElementById('composer-ingredients').innerHTML = html;
+      document.getElementById('composer-form').setAttribute('data-type', type);
+      showView('composer-view');
+    }
+    // Compositeur : construction de recette
+    function composeSaladPlat() {
+      let form = document.getElementById('composer-form');
+      let type = form.getAttribute('data-type');
+      let selected = Array.from(form.querySelectorAll('input[type=checkbox]:checked')).map(i => i.value);
+      if (!selected.length) { alert("Sélectionne au moins un ingrédient !"); return; }
+      let ingrs = (type === "salad" ? ingredientsSalad : ingredientsPlat).filter(i => selected.includes(i.name));
+      let nom = (type === "salad" ? "Salade" : "Plat") + " " + ingrs[0].name;
+      let etapes = ingrs.map(i => `Ajouter ${i.emoji} ${i.name}.`);
+      etapes.push("Mélanger (ou assembler/cuire selon le plat). Servir.");
+      let astuce = type === "salad" ? getRandomElement(astucesSalades) : "Teste différentes associations pour plus de variété.";
+      document.getElementById('composer-result').innerHTML = recipeCard(nom, ingrs, etapes, astuce, type);
+    }
+    // Affichage d'une carte recette, partage intégré
+    function recipeCard(nom, ingrs, etapes, astuce, type) {
       return `
       <div class="card">
-        <h3 class="font-display text-xl mb-2">${name}</h3>
+        <h3 class="font-display text-xl mb-2">${nom}</h3>
         <ul class="mb-3">
-          ${ingredients.map(ing => `<li>${ing.emoji} <b>${ing.name}</b> <span class="text-xs text-gray-500">(${ing.weight}, ${ing.calories} kcal)</span></li>`).join('')}
+          ${ingrs.map(ing => `<li>${ing.emoji} <b>${ing.name}</b></li>`).join('')}
         </ul>
-        <div class="flex items-center gap-4 mb-3">
-          <div class="pie" style="--pct:${Math.min(pct,100)}">
-            <span class="pie-text">${pct}%</span>
-          </div>
-          <div>
-            <div class="font-bold text-lg">${totalKcal} kcal</div>
-            <div class="text-xs text-gray-600">${pct < 70 ? 'Parfait pour un repas léger.' : (pct < 100 ? 'Repas complet.' : 'Très copieux !')}</div>
-            <div class="text-xs text-gray-400">Besoins quotidiens : ${tdee} kcal</div>
-          </div>
-        </div>
         <div class="mb-2">
-          <ol class="list-decimal list-inside text-sm text-gray-700">
-            ${steps.map(s => `<li>${s}</li>`).join('')}
+          <ol class="list-decimal list-inside text-sm text-gray-700 mb-3">
+            ${etapes.map(e => `<li>${e}</li>`).join('')}
           </ol>
+          <div class="text-pink-600 italic mb-2">Astuce : ${astuce}</div>
         </div>
-        <button onclick="copyRecipe(this)" class="mt-2 px-4 py-2 rounded-xl bg-pink-500 text-white font-bold text-base hover:bg-pink-600">Copier la recette</button>
+        <button onclick="shareRecipe(this)" class="mt-2 mr-2 px-4 py-2 rounded-xl bg-blue-500 text-white font-bold text-base hover:bg-blue-600">Partager</button>
       </div>
       `;
     }
 
-    // ---- Copie recette ----
-    function copyRecipe(btn) {
+    // Partage recette (Web Share API ou fallback copie)
+    function shareRecipe(btn) {
       const card = btn.closest('.card');
-      let text = '';
-      card.querySelectorAll('h3, ul, ol').forEach(el => text += el.innerText + '\\n');
-      navigator.clipboard.writeText(text);
-      btn.innerText = "Copié !";
-      setTimeout(() => btn.innerText = "Copier la recette", 2000);
+      let titre = card.querySelector('h3').innerText;
+      let ing = Array.from(card.querySelectorAll('ul li')).map(li => li.innerText).join('\n');
+      let etapes = Array.from(card.querySelectorAll('ol li')).map(li => li.innerText).join('\n');
+      let astuce = card.querySelector('.italic').innerText;
+      let text = `${titre}\n\nIngrédients:\n${ing}\n\nPréparation:\n${etapes}\n\n${astuce}`;
+      if (navigator.share) {
+        navigator.share({ title: titre, text });
+        btn.innerText = "Partagé !";
+      } else {
+        navigator.clipboard.writeText(text);
+        btn.innerText = "Copié !";
+      }
+      setTimeout(() => btn.innerText = "Partager", 2000);
     }
 
-    // ---- Compositeur : afficher ingrédients ----
-    function renderComposerIngredients() {
-      const catNames = {
-        bases: 'Bases',
-        proteines: 'Protéines',
-        legumes: 'Légumes',
-        fromages: 'Fromages',
-        graines_oleagineux: 'Graines/Oléagineux',
-        fruits: 'Fruits',
-        herbes: 'Herbes',
-        extras: 'Extras'
-      };
-      let html = '';
-      for (const [cat, list] of Object.entries(ingredientsDB)) {
-        html += `<div class="mb-2"><div class="font-bold text-pink-500 mb-1">${catNames[cat]}</div>`;
-        html += '<div class="flex flex-wrap gap-2 mb-2">';
-        list.forEach((ing, idx) => {
-          html += `<label class="inline-flex items-center gap-1 bg-white/70 rounded-lg px-2 py-1 shadow border">
-              <input type="checkbox" name="${cat}" value="${idx}" class="accent-pink-500">
-              <span>${ing.emoji} ${ing.name}</span>
-            </label>`;
-        });
-        html += '</div></div>';
+    // Planification semaine (batch cooking)
+    function generateBatch() {
+      // 5 menus variés (aléa : salade/plat/salade/plat/salade)
+      let result = [];
+      for (let i = 0; i < 5; i++) {
+        if (i % 2 === 0) { // Salade
+          let ingrs = [];
+          ingrs.push(getRandomElement(ingredientsSalad.filter(x => ["Laitue", "Pousses d’épinards", "Feuilles de riz"].includes(x.name))));
+          let pool = ingredientsSalad.filter(i => !ingrs.some(b => b.name === i.name));
+          for (let j = 0; j < 4; j++) ingrs.push(getRandomElement(pool.splice(Math.floor(Math.random()*pool.length),1)));
+          let nom = "Salade " + ingrs[0].name + " & " + ingrs[1].name;
+          let etapes = [
+            `Déposer la base (${ingrs[0].emoji} ${ingrs[0].name}) dans une grande assiette.`,
+            ...ingrs.slice(1).map(ing => `Ajouter ${ing.emoji} ${ing.name}.`),
+            "Assaisonner selon ton goût. Mélanger et servir frais."
+          ];
+          let astuce = getRandomElement(astucesSalades);
+          result.push(recipeCard(nom, ingrs, etapes, astuce, 'salad'));
+        } else { // Plat
+          let plat = getRandomElement(platsDB);
+          let ingrs = plat.ingredients.map(n => {
+            let i = ingredientsPlat.find(i => i.name === n) || ingredientsSalad.find(i => i.name === n) || { name: n, emoji: "🍽️" };
+            return i;
+          });
+          result.push(recipeCard(plat.emoji + " " + plat.name, ingrs, plat.steps, plat.astuce, 'plat'));
+        }
       }
-      document.getElementById('composer-ingredients').innerHTML = html;
+      let block = `<div>${result.join('')}</div>
+      <button onclick="batchShare()" class="mt-3 px-4 py-2 rounded-xl bg-blue-500 text-white font-bold text-base hover:bg-blue-600">Partager le menu semaine</button>`;
+      document.getElementById('batch-result').innerHTML = block;
     }
 
-    // ---- Compositeur : calcul et affichage ----
-    function composeSalad() {
-      const form = document.getElementById('composer-form');
-      const selected = Array.from(form.querySelectorAll('input[type=checkbox]:checked'));
-      if (!selected.length) {
-        alert('Sélectionne au moins un ingrédient !');
-        return;
+    // Partage du menu semaine
+    function batchShare() {
+      let el = document.getElementById('batch-result');
+      let text = Array.from(el.querySelectorAll('h3, ul, ol, .italic')).map(e => e.innerText).join('\n');
+      if (navigator.share) {
+        navigator.share({ title: "Menu Semaine Coach Salade", text });
+      } else {
+        navigator.clipboard.writeText(text);
+        alert("Menu copié dans le presse-papier !");
       }
-      let ings = [];
-      for (const el of selected) {
-        ings.push(ingredientsDB[el.name][parseInt(el.value)]);
-      }
-      const totalKcal = ings.reduce((sum, ing) => sum + (ing.calories||0), 0);
-      const weight = parseInt(localStorage.getItem('coachSaladeWeight') || '70', 10);
-      const tdee = calculateTDEE(weight);
-      const pct = Math.round((totalKcal / tdee) * 100);
-      const name = randomSaladName(
-        ings.find(i => i.emoji === '🥬' || i.emoji === '🥗' || i.emoji === '🌱') || ings[0],
-        ings.find(i => i.emoji === '🍗' || i.emoji === '🥩' || i.emoji === '🐟' || i.emoji === '🦐' || i.emoji === '🍖' || i.emoji === '🥚') || ings[0],
-        ings.find(i => i.emoji === '🍈' || i.emoji === '🍉' || i.emoji === '🍑' || i.emoji === '🫐')
-      );
-      // Préparation custom basique
-      const steps = ings.map(i => i.preparation ? i.preparation : `Ajouter ${i.emoji} ${i.name}.`);
-      steps.push('Mélanger délicatement, servir bien frais. Bon appétit !');
-      document.getElementById('composer-result').innerHTML = saladCard(name, ings, totalKcal, pct, tdee, steps, 'composer');
     }
+
   </script>
 </body>
 </html>
+
